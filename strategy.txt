@@ -1,0 +1,172 @@
+STRATEGY: Senior Health Workforce Analyst — Pre-Interview Assignment
+Task: 15-minute technical presentation on forecasting workforce supply and
+requirements for a regulated health profession in Ontario over 10 years.
+
+================================================================================
+0. CHOSEN PROFESSION & FRAMING
+================================================================================
+- Pick one profession with available public data and clear policy relevance,
+  e.g. Registered Nurses (RNs) or Family Physicians. Recommendation: RNs,
+  because CIHI, CNO (College of Nurses of Ontario) and Statistics Canada all
+  publish usable annual data, and nursing shortages are a current Ontario
+  policy priority (easy to tie to "government action").
+- Frame the deck around one central question: "Will Ontario's supply of RNs
+  meet projected population health service needs by 2036, overall and by
+  region, and what levers close any gap?"
+
+================================================================================
+1. ANALYTICAL & POLICY QUESTIONS (Slide section a)
+================================================================================
+- Supply side: how many licensed, *active, practicing* RNs will Ontario have
+  each year (stock-and-flow, not just headcount of registrants).
+- Requirements side: how many RN FTEs are needed to deliver an adequate level
+  of service given demographic change (aging population, population growth)
+  and evolving care models (shift to community/home care).
+- Distribution: supply and requirements modelled by LHIN/Ontario Health
+  region and by urban/rural/north to surface maldistribution, not just a
+  province-wide gap.
+- Core policy questions: Where/when do gaps emerge? Which levers (seat
+  expansions, internationally educated nurse (IEN) licensing, retention,
+  scope-of-practice changes, rural incentives) close them fastest and most
+  cost-effectively?
+
+================================================================================
+2. MODELLING METHODOLOGY (section b)
+================================================================================
+Two linked components, presented as a pipeline:
+
+  (1) STOCK-AND-FLOW SUPPLY MODEL (system dynamics / cohort projection)
+      Supply(t+1) = Supply(t) + New entrants(t) - Attrition(t) + Net migration(t)
+      - New entrants: nursing program graduates + IEN licensure, lagged by
+        program length and licensing exam pass rates.
+      - Attrition: age/career-stage-specific retirement and exit rates
+        (apply age-cohort hazard rates rather than one flat attrition %).
+      - Net migration: interprovincial/international flows from CIHI/CNO data.
+      - Run per region to capture internal migration between regions.
+
+  (2) REQUIREMENTS / DEMAND MODEL (needs-based, population health approach)
+      Requirement(t) = Population(t) x utilization rate x service-intensity
+                        adjustment, decomposed by age band and care setting.
+      - Population projections by region/age from Ontario Ministry of
+        Finance population projections.
+      - Utilization/intensity rates from health service use data, adjusted
+        for policy-driven changes (e.g. more home care, skill-mix changes).
+      - Alternative simpler lens to mention: ratio-based benchmarking
+        (RNs per 1,000 population) as a sensitivity check against the
+        needs-based estimate.
+
+  (3) OPTIMIZATION LAYER (the differentiator — explicitly called out)
+      - Once supply and requirement trajectories are produced per region,
+        formulate a constrained optimization model to recommend how to close
+        projected gaps at least cost / within budget:
+          Decision variables: number of new domestic training seats to fund,
+          number of IEN licenses to fast-track, retention-incentive spend,
+          and inter-regional deployment incentives, each year.
+          Objective: minimize (total policy cost) subject to closing the
+          projected supply-requirement gap in every region and year, or
+          minimize the maximum remaining gap subject to a fixed budget
+          (equivalent formulations — present both and pick one for the demo).
+          Constraints: training pipeline capacity (seats, clinical placement
+          capacity), annual budget ceilings, realistic ramp-up rates,
+          minimum service levels per region.
+      - This reframes the exercise from "descriptive forecast" to decision
+        support: the model doesn't just predict a gap, it recommends the
+        policy mix that closes it most efficiently.
+      - Keep the math simple enough to present in 2-3 slides: a linear or
+        mixed-integer program (LP/MIP) solved with open-source tooling
+        (e.g. Python + PuLP/OR-Tools) is sufficient and easy to explain to a
+        non-technical audience; avoid overengineering for a 15-minute talk.
+
+================================================================================
+3. DATA SOURCES, VARIABLES, DATA QUALITY & PRIVACY (section c)
+================================================================================
+- Supply-side data: CNO annual registration statistics (counts by age,
+  region, class of registration), CIHI Nursing in Canada reports, National
+  Nursing Database.
+- Demand-side data: Ontario Ministry of Finance population projections,
+  CIHI health service utilization data, Ontario Health regional reports,
+  StatCan health workforce surveys.
+- Key variables: headcount vs FTE, age distribution, region/LHIN, practice
+  setting, full-time/part-time status, graduation and licensing rates.
+- Data quality issues to flag: registration counts overstate "active
+  practicing" supply; regional data can be sparse/suppressed for small
+  cells; lag between data collection and publication (typically 1-2 years);
+  self-reported hours worked can be unreliable.
+- Privacy: all data used should be aggregate/de-identified, consistent with
+  CIHI/CNO public data use agreements; no individual-level licensing or
+  patient data required; follow Ontario's FIPPA principles for any
+  internal/administrative data accessed.
+
+================================================================================
+4. UNCERTAINTY, SCENARIOS & SENSITIVITY (section d)
+================================================================================
+- Treat this as a monte carlo / scenario exercise layered on the
+  stock-and-flow model, not a single point forecast.
+- Scenarios: baseline (status quo trends), high-attrition (accelerated
+  retirements), expanded-seats (policy intervention), high-immigration/IEN
+  fast-tracking.
+- Sensitivity analysis on key uncertain parameters: attrition rate,
+  utilization rate growth, program completion/pass rates, migration rates —
+  tornado chart showing which assumptions move the gap estimate most.
+- For the optimization layer: solve under each scenario to show how the
+  recommended policy mix and cost change with the underlying uncertainty
+  (robust/stress-tested recommendation rather than a single "optimal" plan).
+
+================================================================================
+5. COMMUNICATING RESULTS & POLICY IMPLICATIONS (section e)
+================================================================================
+- Lead with a single headline chart: projected supply vs. requirement,
+  province-wide and by region, 2026-2036, with a shaded uncertainty band.
+- Follow with the optimization result: "the lowest-cost policy mix that
+  closes the gap" as a simple bar/stacked chart (seats vs IEN licensing vs
+  retention spend vs year).
+- State limitations plainly: model quality depends on data lag and
+  assumption validity; does not capture non-linear system shocks (e.g.
+  pandemics); regional model is coarser than facility-level planning.
+- Policy implications framed as options with trade-offs (cost, lead time,
+  political feasibility), not a single recommendation — supports
+  evidence-informed decision-making by senior management/government.
+
+================================================================================
+6. WEBAPP / DEMO COMPONENT (extra deliverable beyond the core ask)
+================================================================================
+Goal: a lightweight, interactive artifact to show during/after the
+presentation that makes the model tangible, without overengineering.
+
+- Stack: Python backend (model logic reused directly from the
+  stock-and-flow + optimization scripts) + a simple interactive front end.
+  Recommended for a quick build: Streamlit (fastest path to an interactive
+  dashboard with sliders/scenario pickers, no separate frontend needed).
+  Alternative if a "real" web app is wanted: FastAPI backend + React/Vite
+  frontend with Plotly/Recharts charts — more effort, only pursue if time
+  allows.
+- Core screens:
+  1. Scenario control panel: sliders/dropdowns for attrition rate,
+     training seat growth, IEN licensing rate, region selector.
+  2. Supply vs requirement chart (province + per-region) updating live as
+     scenario inputs change.
+  3. "Optimizer" panel: given a budget slider, show the recommended policy
+     mix (seats/IEN/retention spend by year) and resulting gap closure,
+     calling the LP/MIP solver on the fly (PuLP or OR-Tools).
+  4. Downloadable summary table/CSV of projected gaps and recommended
+     interventions.
+- Keep the optimization model solvable in well under a second for a smooth
+  interactive demo (small LP, annual time steps, handful of regions).
+- Use this app as a live demo in the last 1-2 minutes of the presentation,
+  or leave it as a leave-behind artifact/link for the interview panel.
+
+================================================================================
+7. PREPARATION PLAN / TIMELINE
+================================================================================
+1. Finalize profession choice and gather 2-3 key public datasets (CNO/CIHI/
+   StatCan/Ontario population projections).
+2. Build the stock-and-flow supply model and the needs-based requirement
+   model in Python (pandas) using real or reasonably approximated data.
+3. Layer the optimization model (PuLP/OR-Tools) on top to generate the
+   recommended policy mix under a baseline scenario.
+4. Run 3-4 scenarios and sensitivity checks; capture the headline charts.
+5. Build the Streamlit demo app wrapping the same model code.
+6. Draft the 15-minute slide deck following sections a-e above, each with
+   1-3 slides; reserve the last slides for the optimizer + webapp demo and
+   explicit "limitations" slide.
+7. Rehearse for time (aim ~12-13 minutes content + 2-3 minutes buffer/demo).

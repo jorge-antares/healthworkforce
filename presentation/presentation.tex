@@ -1,0 +1,335 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    language=Python
+}
+
+\title{Senior Health Workforce Analyst - Test}
+\subtitle{Population and Workforce Forecast Model}
+\author{Jorge A. Garcia}
+\date{October 19th, 2026}
+
+
+\begin{document}
+
+% ── Slide 1: Title ────────────────────────────────────────────────────────────
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% ── Slide 2: Outline ────────────────────────────────────
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+% ── Slide 3: About me ────────────────────────────────────
+\section{About me}
+\begin{frame}{About me}
+    % List key points about your background, motivation, and approach to data analytics.
+    \begin{itemize}
+        \item Quantitative modeler with 10+ years of experience:
+        % Sub list
+        \begin{itemize}
+            \item Decision models (optimization)
+            \item Agent-based simulation
+            \item Physics-based modeling
+            \item Macroeconomic models
+        \end{itemize}
+        \vspace{0.3cm}
+        \item Currently, developer of web-apps for science and decision-making (\href{https://modelbridgelabs.com/}{modelbridgelabs.com}).
+        \vspace{0.3cm}
+        \item Goals:
+            \begin{itemize}
+                \item Apply data analytics and modeling to inform decision-making and uncover actionable insights.
+                \item Learn and grow as a professional by taking on new challenges and responsibilities.
+            \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+
+% ── Slide 4: Dataset and Pipeline Overview ────────────────────────────────────
+\section{General approach}
+\begin{frame}{General approach}
+    \begin{columns}[T]
+        \column{0.5\textwidth}
+            \begin{enumerate}
+                \item Exploratory field analysis
+                \item Structure design
+                \item Data cleaning
+                \item Automated validation
+                \item Data profiling
+                \item Version control, CI, testing\\(\href{https://github.com/jorge-antares/das_test}{github.com/jorge-antares/das\_test})
+                \item Iterative refinement
+            \end{enumerate}
+        \column{0.5\textwidth}
+        % Figure
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.8\textwidth]{img/structure.png}
+            \caption{Project structure.}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+% ── Slide 5: File description ────────────────────────────────────
+\section{Project structure}
+\begin{frame}{Project structure}
+    \begin{itemize}
+        \item \texttt{utilspc/}
+        \begin{itemize}
+            \item \texttt{cleanfun.py}: Parsing functions for cleaning specific fields.
+            \item \texttt{cleanerclass.py}: Python classes for SQLite connection and cleaning.
+        \end{itemize}
+        \item \texttt{analytics/}
+        \begin{itemize}
+            \item \texttt{validation.py}: Verification checks and profiling report generation.
+            \item \texttt{analysis.py}: Analysis functions for generating reports and insights.
+        \end{itemize}
+        \item \texttt{main.py}: Main script to run the cleaning, validation, and analysis functions.
+        \item \texttt{test.py}: Simple validity test (CI - GitHub Actions).
+        \item \texttt{output/}
+        \begin{itemize}
+            \item \texttt{metadata.csv}: column-level profile of the cleaned dataset.
+            \item \texttt{data\_profile.txt}: full analysis report of the cleaned dataset.
+            \item \texttt{cleaned\_plane\_crashes.db}: cleaned SQLite database.
+            \item \texttt{validation\_report.txt}: detailed validation report with check results and failure details.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+% ── Slide 6: Data Cleaning ────────────────────────────────────────────────────
+\section{Data Cleaning}
+\begin{frame}{Date, Time and Location}
+    \begin{itemize}
+        \item \textcolor{blue}{\texttt{date}}: Somewhat consistent format. Parse `DD-Mon-YY' to `YYYY-MM-DD' or None/Null on failure. Potential ambiguity: YY-MM-DD or DD-MM-YY, century for 14-25?,  UTC time?. 
+        \vspace{0.3cm}
+        \item \textcolor{blue}{\texttt{time}}: Universal format. Normalise to `HH:MM' (24-hour). Strips prefix `c' with optional space.\\
+            Convert 3- and 4-digit integers (e.g. `1730' to `17:30'). Returns None for unparseable values.
+        \vspace{0.3cm}
+        \item \textcolor{blue}{\texttt{location}} Returns a tuple (`first', `last') where `first' is the location excluding the country (or None) and `last' is the country name (or None). Created sets to assign US and UK.\\
+        Created field \textcolor{blue}{\texttt{country}}. This is a key field worth standardising.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Operator, AC type, aboard and fatalities}
+    \begin{itemize}
+        \item \textcolor{blue}{\texttt{operator}}: Strip whitespaces and nullify values that are clearly not airline operators:\\
+            \begin{itemize}
+                \item Pure serial / registration codes, e.g. ``'46826/109'``.
+                \item Aircraft manufacturer + model designator, e.g. `Boeing KC-135E', `Lockheed AC-130H Hercules'.
+            \end{itemize}
+            Potential to create Military/Civilian/Unknown field based on operator name.
+        \vspace{0.3cm}
+        \item \textcolor{blue}{\texttt{ac\_type}}:
+            \begin{itemize}
+                \item Strip whitespaces and nullify `?' chars.
+                \item Remove vehicle categories, e.g. `(flying boat)', `(airship)', `(amphibian)'.
+                \item Strip any residual leading `/' trailing whitespace.
+                \item Return None if empty
+            \end{itemize}
+            Potential to group by maker (e.g. `Boeing', `Airbus', `Douglas').
+        \item \textcolor{blue}{\texttt{aboard, fatalities}}: Parsed fields, remove non-numeric values and created fields related to total, passengers, and crew (or None).
+        \item \textcolor{blue}{\texttt{summary}}: Cleaned. Potential to extract cause based on text classification.
+    \end{itemize}
+
+\end{frame}
+
+
+% ── Slide 7: Data Verification ─────────────────────────────────────────────────
+\section{Data Verification}
+\begin{frame}{Data Verification}
+
+    \textbf{Automated checks run after every cleaning pass:}
+
+    \bigskip
+
+    \begin{columns}[T]
+        \column{0.5\textwidth}
+        \textbf{Structure}
+        \begin{itemize}
+            \item Schema: all 18 expected columns with correct declared types
+            \item Python-level type consistency per column
+        \end{itemize}
+
+        \bigskip
+
+        \textbf{Format}
+        \begin{itemize}
+            \item Dates match \texttt{YYYY-MM-DD}; range 1908--2025
+            \item Times match \texttt{HH:MM} (24-hour)
+            \item All numeric columns $\geq 0$
+        \end{itemize}
+
+        \column{0.5\textwidth}
+        \textbf{Cross-column consistency}
+        \begin{itemize}
+            \item \texttt{aboard\_passengers + aboard\_crew = aboard\_total}
+            \item \texttt{fatalities\_passengers + fatalities\_crew = fatalities\_aboard}
+            \item \texttt{fatalities\_aboard} $\leq$ \texttt{aboard\_total}
+            \item \texttt{fatalities\_total = fatalities\_aboard + ground}
+        \end{itemize}
+
+        \bigskip
+
+        \textbf{Duplicates}
+        \begin{itemize}
+            \item Rows sharing \texttt{(date, operator, route)} flagged as potential duplicates.
+        \end{itemize}
+    \end{columns}
+
+    \bigskip
+    \small
+    Results reported as \textbf{PASS / WARN / FAIL} per check.
+
+\end{frame}
+
+
+% ── Slide 8: Metadata ───────────────────────────────────────────────────
+\section{Metadata}
+\begin{frame}{Dataset Schema}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{4pt}
+    metadata.csv (5,783 rows)\quad
+    \medskip
+
+    \begin{tabular}{llrrp{4.6cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{NA} & \textbf{Unique} & \textbf{Description} \\
+        \midrule
+        \texttt{date}                  & TEXT    &    0 & 5212 & Date of the crash (YYYY-MM-DD) \\
+        \texttt{time}                  & TEXT    & 2183 & 1051 & Time of the crash (HH:MM, 24-hour) \\
+        \texttt{location}              & TEXT    &  230 & 4372 & Location of the crash \\
+        \texttt{country}               & TEXT    &  104 &  429 & Country of crash (derived from location) \\
+        \texttt{operator}              & TEXT    &   29 & 2812 & Airline or operator \\
+        \texttt{flight\_no}            & TEXT    & 4508 &  868 & Flight number assigned by the operator \\
+        \texttt{route}                 & TEXT    & 1689 & 3839 & Route flown prior to the accident \\
+        \texttt{ac\_type}              & TEXT    &   24 & 2666 & Aircraft type \\
+        \texttt{registration}          & TEXT    &  357 & 5385 & ICAO registration of the aircraft \\
+        \texttt{cn\_ln}                & TEXT    & 1209 & 4063 & Construction/serial number \\
+        \texttt{aboard\_total}         & INTEGER &   40 &  242 & Total number of people aboard \\
+        \texttt{aboard\_passengers}    & INTEGER &  543 &  231 & Number of passengers aboard \\
+        \texttt{aboard\_crew}          & INTEGER &  539 &   31 & Number of crew aboard \\
+        \texttt{fatalities\_aboard}    & INTEGER &   11 &  200 & Total number of fatalities aboard \\
+        \texttt{fatalities\_passengers}& INTEGER &  558 &  190 & Number of passenger fatalities \\
+        \texttt{fatalities\_crew}      & INTEGER &  556 &   28 & Number of crew fatalities \\
+        \texttt{ground}                & INTEGER &   52 &   53 & Ground fatalities \\
+        \texttt{fatalities\_total}     & INTEGER &    0 &  204 & Total number of fatalities \\
+        \texttt{summary}               & TEXT    &  231 & 5366 & Brief description of the accident \\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+
+% ── Slide 9: Analysis Sections ────────────────────────────────────────────────
+\section{Analysis}
+\begin{frame}{Analysis}
+
+    \textbf{Five sections produced in the profiling report:}
+
+    \bigskip
+
+    \begin{enumerate}
+        \setlength\itemsep{6pt}
+        \item \textbf{Data Profiling} --- NULL rate, unique value count, and type per column.
+
+        \item \textbf{Descriptive Statistics} --- Aggregate fatality rate (fatalities\,/\,aboard), survival rate, ground casualties, and crew vs.\ passenger fatality split.
+
+        \item \textbf{Trend Analysis} --- Crashes and fatalities per decade and per year (ASCII bar chart); top 15 operators by crash count; most dangerous aircraft types by fatality rate (min.\ 10 incidents).
+
+        \item \textbf{Geographic Analysis} --- Top 20 countries/regions and specific crash sites by incident count.
+
+        \item \textbf{Data Quality} --- Mismatched totals, rows where fatalities exceed aboard count, duplicate \texttt{(date, operator, route)} groups, and registration reuse across aircraft types.
+    \end{enumerate}
+
+\end{frame}
+
+% ── Slide 10: Next Steps ────────────────────────────────────────────────
+\begin{frame}{Next steps}
+    \begin{itemize}
+        \item Get unique values again.
+        \item Consider grouping for AC type and operator (e.g. by maker or military/civilian).
+        \item Standardise country names.
+        \item Remove duplicates or create a flag for them.
+        \item Remove or correct outliers.
+        \item Consider flag for data quality issues (e.g. fatalities $>$ aboard).
+    \end{itemize}
+\end{frame}
+
+% ── Slide 11: WebApp ─────────────────────────────────────
+\section{User Interface}
+\begin{frame}{User Interface}
+    % Two columns: left with a screenshot of the web app, right with a brief description of its features and how it can be used to explore the dataset and insights.
+    \begin{columns}[T]
+        \column{0.4\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=\textwidth]{img/webapp.png}
+            \caption{Web app interface at \href{https://40.233.98.115/}{https://40.233.98.115/}.}
+        \end{figure}
+        \column{0.5\textwidth}
+        \vspace{0.5cm}
+        \textbf{Frameworks used:}
+        \begin{itemize}
+            \item Flask for backend API.
+            \item Jinja2 for HTML templating.
+            \item Bootstrap for responsive design.
+            \item Docker for containerisation and deployment.
+            \item Nginx for reverse proxy and static file serving.
+        \end{itemize}
+        \vspace{0.5cm}
+        Hosting via a VM instance (Ubuntu server 24.04.4 LTS) on Oracle Cloud.\\
+        Repository: \href{https://github.com/jorge-antares/ontario}{github.com/jorge-antares/ontario}
+    \end{columns}
+
+\end{frame}
+
+% ── Slide 12: Conclusion ─────────────────────────────────────
+\section{Summary}
+\begin{frame}{Summary}
+    \textbf{My approach:}
+    \begin{itemize}
+        \item Perform cleaning by stages of continuous refinement.
+        \item Develop a modular and reusable structure with minimal external dependencies.
+        \item Implement programming best practices: version control, testing, CI/CD, and documentation.
+        \item Standardise fields to keep consistency and enable analysis.
+        \item Cross-validate data and create metrics (e.g., fatality rates).
+        \item Explore ways to integrate data products with decision-making processes and end-user applications.
+    \end{itemize}
+
+\end{frame}
+
+% ── Slide 13: Disclosure of tools ─────────────────────────────────────
+\section{Disclosure}
+\begin{frame}{Disclosure of Tools}
+    Claude Sonnet 4.6 was used in the following tasks:
+    \begin{itemize}
+        \item Parse unique values of fields to look for edge cases.
+        \item Create documentation based on project structure and code comments.
+        \item Create HTML for user interface.
+        \item Code completion and debugging suggestions (VS Code).
+    \end{itemize}
+    \vspace{0.5cm}
+    All LLM outputs were reviewed and edited.
+\end{frame}
+
+\end{document}
