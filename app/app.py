@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from model.linprog import optimal_hiring_policy
 
 app = Flask(__name__)
 

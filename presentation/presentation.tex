@@ -4,6 +4,7 @@
 \usecolortheme{dolphin}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+\usefonttheme[onlymath]{serif}
 
 \usepackage{booktabs}
 \usepackage{listings}
@@ -52,7 +53,7 @@
             \item Macroeconomic models
         \end{itemize}
         \vspace{0.3cm}
-        \item Currently, developer of web-apps for science and decision-making (\href{https://modelbridgelabs.com/}{modelbridgelabs.com}).
+        \item Currently, Data Analytics Specialist @ MCCSS.
         \vspace{0.3cm}
         \item Goals:
             \begin{itemize}
@@ -63,273 +64,300 @@
 
 \end{frame}
 
+% ── Section a: Questions ─────────────────────────────────────────────────────
+\section{Questions \& Concepts}
+\begin{frame}{Central question: Registered Nurses (RNs) in Ontario, 2026--2036}
+    \begin{block}{Will Ontario's RN supply meet projected population health service needs by 2036 --- overall and by region --- and which levers close any gap?}
+    \end{block}
+    \vspace{0.2cm}
+    \begin{itemize}
+        \item \textbf{Why RNs?} Public data (CNO, CIHI, StatCan), clear policy relevance.
+        \item \textbf{Analytical questions}
+        \begin{itemize}
+            \item How many \emph{active, practising} RNs (FTE) will there be each year?
+            \item How many RN FTEs are needed as the population grows and ages?
+            \item Where and when do gaps emerge?
+        \end{itemize}
+        \item \textbf{Policy questions}
+        \begin{itemize}
+            \item Which levers close gaps fastest and most cost-effectively: training seats, internationally educated nurse (IEN) licensing, retention, scope of practice, rural incentives?
+        \end{itemize}
+    \end{itemize}
+\end{frame}
 
-% ── Slide 4: Dataset and Pipeline Overview ────────────────────────────────────
-\section{General approach}
-\begin{frame}{General approach}
+\begin{frame}{Conceptualizing supply, requirements and distribution}
     \begin{columns}[T]
-        \column{0.5\textwidth}
-            \begin{enumerate}
-                \item Exploratory field analysis
-                \item Structure design
-                \item Data cleaning
-                \item Automated validation
-                \item Data profiling
-                \item Version control, CI, testing\\(\href{https://github.com/jorge-antares/das_test}{github.com/jorge-antares/das\_test})
-                \item Iterative refinement
-            \end{enumerate}
-        \column{0.5\textwidth}
-        % Figure
-        \begin{figure}
-            \centering
-            \includegraphics[width=0.8\textwidth]{img/structure.png}
-            \caption{Project structure.}
-        \end{figure}
-    \end{columns}
-\end{frame}
-
-% ── Slide 5: File description ────────────────────────────────────
-\section{Project structure}
-\begin{frame}{Project structure}
-    \begin{itemize}
-        \item \texttt{utilspc/}
+        \column{0.32\textwidth}
+        \textbf{Supply}
         \begin{itemize}
-            \item \texttt{cleanfun.py}: Parsing functions for cleaning specific fields.
-            \item \texttt{cleanerclass.py}: Python classes for SQLite connection and cleaning.
+            \item Stock-and-flow, not a registrant headcount
+            \item Registered $\rightarrow$ active $\rightarrow$ practising in Ontario
+            \item Converted to FTE (full/part-time, hours)
         \end{itemize}
-        \item \texttt{analytics/}
+        \column{0.32\textwidth}
+        \textbf{Requirements}
         \begin{itemize}
-            \item \texttt{validation.py}: Verification checks and profiling report generation.
-            \item \texttt{analysis.py}: Analysis functions for generating reports and insights.
+            \item Needs-based: workforce required to meet projected population and service needs
+            \item Driven by age/sex, population growth, care setting, models of care
+            \item Not the same as current employment or vacancies
         \end{itemize}
-        \item \texttt{main.py}: Main script to run the cleaning, validation, and analysis functions.
-        \item \texttt{test.py}: Simple validity test (CI - GitHub Actions).
-        \item \texttt{output/}
+        \column{0.32\textwidth}
+        \textbf{Geography}
         \begin{itemize}
-            \item \texttt{metadata.csv}: column-level profile of the cleaned dataset.
-            \item \texttt{data\_profile.txt}: full analysis report of the cleaned dataset.
-            \item \texttt{cleaned\_plane\_crashes.db}: cleaned SQLite database.
-            \item \texttt{validation\_report.txt}: detailed validation report with check results and failure details.
-        \end{itemize}
-    \end{itemize}
-\end{frame}
-
-
-% ── Slide 6: Data Cleaning ────────────────────────────────────────────────────
-\section{Data Cleaning}
-\begin{frame}{Date, Time and Location}
-    \begin{itemize}
-        \item \textcolor{blue}{\texttt{date}}: Somewhat consistent format. Parse `DD-Mon-YY' to `YYYY-MM-DD' or None/Null on failure. Potential ambiguity: YY-MM-DD or DD-MM-YY, century for 14-25?,  UTC time?. 
-        \vspace{0.3cm}
-        \item \textcolor{blue}{\texttt{time}}: Universal format. Normalise to `HH:MM' (24-hour). Strips prefix `c' with optional space.\\
-            Convert 3- and 4-digit integers (e.g. `1730' to `17:30'). Returns None for unparseable values.
-        \vspace{0.3cm}
-        \item \textcolor{blue}{\texttt{location}} Returns a tuple (`first', `last') where `first' is the location excluding the country (or None) and `last' is the country name (or None). Created sets to assign US and UK.\\
-        Created field \textcolor{blue}{\texttt{country}}. This is a key field worth standardising.
-    \end{itemize}
-
-\end{frame}
-
-\begin{frame}{Operator, AC type, aboard and fatalities}
-    \begin{itemize}
-        \item \textcolor{blue}{\texttt{operator}}: Strip whitespaces and nullify values that are clearly not airline operators:\\
-            \begin{itemize}
-                \item Pure serial / registration codes, e.g. ``'46826/109'``.
-                \item Aircraft manufacturer + model designator, e.g. `Boeing KC-135E', `Lockheed AC-130H Hercules'.
-            \end{itemize}
-            Potential to create Military/Civilian/Unknown field based on operator name.
-        \vspace{0.3cm}
-        \item \textcolor{blue}{\texttt{ac\_type}}:
-            \begin{itemize}
-                \item Strip whitespaces and nullify `?' chars.
-                \item Remove vehicle categories, e.g. `(flying boat)', `(airship)', `(amphibian)'.
-                \item Strip any residual leading `/' trailing whitespace.
-                \item Return None if empty
-            \end{itemize}
-            Potential to group by maker (e.g. `Boeing', `Airbus', `Douglas').
-        \item \textcolor{blue}{\texttt{aboard, fatalities}}: Parsed fields, remove non-numeric values and created fields related to total, passengers, and crew (or None).
-        \item \textcolor{blue}{\texttt{summary}}: Cleaned. Potential to extract cause based on text classification.
-    \end{itemize}
-
-\end{frame}
-
-
-% ── Slide 7: Data Verification ─────────────────────────────────────────────────
-\section{Data Verification}
-\begin{frame}{Data Verification}
-
-    \textbf{Automated checks run after every cleaning pass:}
-
-    \bigskip
-
-    \begin{columns}[T]
-        \column{0.5\textwidth}
-        \textbf{Structure}
-        \begin{itemize}
-            \item Schema: all 18 expected columns with correct declared types
-            \item Python-level type consistency per column
-        \end{itemize}
-
-        \bigskip
-
-        \textbf{Format}
-        \begin{itemize}
-            \item Dates match \texttt{YYYY-MM-DD}; range 1908--2025
-            \item Times match \texttt{HH:MM} (24-hour)
-            \item All numeric columns $\geq 0$
-        \end{itemize}
-
-        \column{0.5\textwidth}
-        \textbf{Cross-column consistency}
-        \begin{itemize}
-            \item \texttt{aboard\_passengers + aboard\_crew = aboard\_total}
-            \item \texttt{fatalities\_passengers + fatalities\_crew = fatalities\_aboard}
-            \item \texttt{fatalities\_aboard} $\leq$ \texttt{aboard\_total}
-            \item \texttt{fatalities\_total = fatalities\_aboard + ground}
-        \end{itemize}
-
-        \bigskip
-
-        \textbf{Duplicates}
-        \begin{itemize}
-            \item Rows sharing \texttt{(date, operator, route)} flagged as potential duplicates.
+            \item Modelled by Ontario Health region
+            \item Urban / rural / northern lens
+            \item Province-wide balance can hide regional shortages
         \end{itemize}
     \end{columns}
-
-    \bigskip
-    \small
-    Results reported as \textbf{PASS / WARN / FAIL} per check.
-
+    \vspace{0.4cm}
+    \centering\textbf{Gap}$_{r,t}$ = Requirement$_{r,t}$ $-$ Supply$_{r,t}$ \quad (region $r$, year $t$, in FTEs)
 \end{frame}
 
-
-% ── Slide 8: Metadata ───────────────────────────────────────────────────
-\section{Metadata}
-\begin{frame}{Dataset Schema}
+% ── Section b: Methodology ───────────────────────────────────────────────────
+\section{Methodology}
+\begin{frame}{Modelling pipeline}
     \centering
-    \scriptsize
-    \setlength{\tabcolsep}{4pt}
-    metadata.csv (5,783 rows)\quad
-    \medskip
+    \begin{tikzpicture}[
+        box/.style={rectangle, rounded corners, draw=structure.fg, fill=structure.fg!10, minimum width=3.1cm, minimum height=1.1cm, align=center, font=\small},
+        arr/.style={-latex, thick}]
+        \node[box] (supply) at (0,1.2) {1. Supply model\\stock-and-flow};
+        \node[box] (req) at (0,-0.6) {2. Requirements model\\needs-based};
+        \node[box] (gap) at (4.0,0.3) {Gap by region\\and year};
+        \node[box] (scen) at (7.8,1.2) {3. Scenarios \&\\sensitivity};
+        \node[box] (opt) at (7.8,-0.6) {4. Optimization\\policy mix};
+        \node[box] (out) at (11.5,0.3) {Decision\\support};
+        \draw[arr] (supply) -- (gap);
+        \draw[arr] (req) -- (gap);
+        \draw[arr] (gap) -- (scen);
+        \draw[arr] (gap) -- (opt);
+        \draw[arr] (scen) -- (out);
+        \draw[arr] (opt) -- (out);
+    \end{tikzpicture}
+    \vspace{0.3cm}
+    \begin{itemize}
+        \item Annual time steps, ten-year horizon, a handful of regions: transparent and fast to run.
+        \item Moves from a \emph{descriptive forecast} to \emph{decision support}.
+    \end{itemize}
+\end{frame}
 
-    \begin{tabular}{llrrp{4.6cm}}
+\begin{frame}{Supply: stock-and-flow (cohort projection)}
+    \[
+    S_{r,a}(t+1) = S_{r,a}(t) + E_{r}(t) - A_{r,a}(t) + M_{r,a}(t)
+    \]
+    \vspace{-0.2cm}
+    \begin{columns}[T]
+        \column{0.55\textwidth}
+        \begin{itemize}
+            \item \textbf{Inflows}
+            \begin{itemize}
+                \item New graduates $E$, lagged by program length and exam pass rates; IEN licensure
+                \item Net interprovincial / international migration $M$
+                \item Re-entrants
+            \end{itemize}
+            \item \textbf{Outflows}
+            \begin{itemize}
+                \item Age- and career-stage-specific retirement / exit hazard rates $A$ (not one flat attrition rate)
+            \end{itemize}
+        \end{itemize}
+        \column{0.42\textwidth}
+        \begin{itemize}
+            \item \textbf{Key assumptions}
+            \begin{itemize}
+                \item Age-specific rates stay at recent levels (baseline)
+                \item Graduates and IENs stay in Ontario at observed rates
+                \item FTE per active RN by age and sex
+                \item Regional distribution of new entrants follows observed patterns
+            \end{itemize}
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Requirements: needs-based model}
+    \[
+    R_{r}(t) = \sum_{a,s,c} P_{r,a,s}(t) \times U_{a,s,c} \times I_{c}(t)
+    \]
+    \begin{itemize}
+        \item $P$: population by region, age band and sex (Ontario Ministry of Finance projections)
+        \item $U$: service utilization rate by age/sex and care setting $c$ (hospital, long-term care, home and community, primary care)
+        \item $I$: service-intensity adjustment converting service use to RN FTEs, including policy-driven changes (more home care, skill-mix shifts)
+        \item \textbf{Cross-check:} ratio benchmarking (RNs per 1,000 population) as a sensitivity lens on the needs-based estimate
+        \item \textbf{Key assumptions:} utilization by age stays constant in the baseline; changes in care models enter only as explicit scenarios
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Optimization layer: from forecast to recommendation}
+    \textbf{Decision variables} $x_{t}$: domestic training seats, IEN licences fast-tracked, retention-incentive spend, inter-regional deployment incentives.
+    \vspace{0.2cm}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Formulation A: least cost}
+        \[
+        \min \sum_{k,r,t} c_{k}\, x_{k,r,t}
+        \]
+        s.t. $S_{r,t}(x) \ge R_{r,t}$ for all $r,t$
+        \column{0.48\textwidth}
+        \textbf{Formulation B: fixed budget}
+        \[
+        \min \; \max_{r,t}\, \big(R_{r,t} - S_{r,t}(x)\big)^{+}
+        \]
+        s.t. $\sum c_{k}\, x_{k,r,t} \le B$
+    \end{columns}
+    \vspace{0.2cm}
+    \begin{itemize}
+        \item \textbf{Constraints:} training and clinical-placement capacity, annual budget ceilings, realistic ramp-up rates, minimum service level per region.
+        \item Linear / mixed-integer program, open-source solvers (Python with PuLP or OR-Tools): fast and explainable.
+        \item The two formulations are two views of the same cost--gap trade-off.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Optimal hiring policy model}
+    \textbf{Decision variable} $x_{t}$: new nurse hired at time $t$.
+    \vspace{0.2cm}
+    \[
+    \min_{x_{t}} \sum_{t=0}^{T} e^{-\lambda t}\, y_{t}^{+} + \sum_{t=0}^{T} e^{-\mu t}\, y_{t}^{-}
+    \]
+    s.t. 
+    \begin{equation}
+        d_{t} = \alpha_t\ p_{t}\quad \forall t
+    \end{equation}
+
+    \begin{equation}
+        s_{t} = \beta_t\ n_{t}\quad \forall t
+    \end{equation}
+
+    \begin{equation}
+        d_{t} - s_{t} = y_{t}^{+} - y_{t}^{-}  \quad \forall t
+    \end{equation}
+
+    \begin{equation}
+        n_{t} = \gamma\ n_{t-1} + x_{t} \quad \forall t
+    \end{equation}
+
+    \begin{equation}
+        x_{t}, y_{t}^{+}, y_{t}^{-} \ge 0 \quad \forall t
+    \end{equation}
+    
+    \vspace{0.2cm}
+    \begin{itemize}
+        \item \textbf{Constraints:} training and clinical-placement capacity, annual budget ceilings, realistic ramp-up rates, minimum service level per region.
+    \end{itemize}
+\end{frame}
+
+
+% ── Section c: Data ──────────────────────────────────────────────────────────
+\section{Data}
+\begin{frame}{Data sources, variables and indicators}
+    \small
+    \begin{tabular}{@{}p{2.3cm}p{5.5cm}p{5.6cm}@{}}
         \toprule
-        \textbf{Field} & \textbf{Type} & \textbf{NA} & \textbf{Unique} & \textbf{Description} \\
+        & \textbf{Sources} & \textbf{Variables / indicators} \\
         \midrule
-        \texttt{date}                  & TEXT    &    0 & 5212 & Date of the crash (YYYY-MM-DD) \\
-        \texttt{time}                  & TEXT    & 2183 & 1051 & Time of the crash (HH:MM, 24-hour) \\
-        \texttt{location}              & TEXT    &  230 & 4372 & Location of the crash \\
-        \texttt{country}               & TEXT    &  104 &  429 & Country of crash (derived from location) \\
-        \texttt{operator}              & TEXT    &   29 & 2812 & Airline or operator \\
-        \texttt{flight\_no}            & TEXT    & 4508 &  868 & Flight number assigned by the operator \\
-        \texttt{route}                 & TEXT    & 1689 & 3839 & Route flown prior to the accident \\
-        \texttt{ac\_type}              & TEXT    &   24 & 2666 & Aircraft type \\
-        \texttt{registration}          & TEXT    &  357 & 5385 & ICAO registration of the aircraft \\
-        \texttt{cn\_ln}                & TEXT    & 1209 & 4063 & Construction/serial number \\
-        \texttt{aboard\_total}         & INTEGER &   40 &  242 & Total number of people aboard \\
-        \texttt{aboard\_passengers}    & INTEGER &  543 &  231 & Number of passengers aboard \\
-        \texttt{aboard\_crew}          & INTEGER &  539 &   31 & Number of crew aboard \\
-        \texttt{fatalities\_aboard}    & INTEGER &   11 &  200 & Total number of fatalities aboard \\
-        \texttt{fatalities\_passengers}& INTEGER &  558 &  190 & Number of passenger fatalities \\
-        \texttt{fatalities\_crew}      & INTEGER &  556 &   28 & Number of crew fatalities \\
-        \texttt{ground}                & INTEGER &   52 &   53 & Ground fatalities \\
-        \texttt{fatalities\_total}     & INTEGER &    0 &  204 & Total number of fatalities \\
-        \texttt{summary}               & TEXT    &  231 & 5366 & Brief description of the accident \\
+        Supply & College of Nurses of Ontario (CNO) registration statistics; CIHI Nursing in Canada / National Nursing Database; program enrolment and graduation counts; licensing exam results & Headcount and FTE; age and sex; region; practice setting; employment status (full-/part-time); graduation, pass and licensing rates; migration \\
+        \addlinespace
+        Requirements & Ontario Ministry of Finance population projections; CIHI health service utilization; Ontario Health regional reports; Statistics Canada & Population by region/age/sex; service use by setting; RNs per 1,000 population; hours of care per service unit \\
+        \addlinespace
+        Policy & Training-seat funding, IEN pathway capacity, program costs & Unit cost per seat, IEN licence, retention incentive; capacity limits; ramp-up rates \\
         \bottomrule
     \end{tabular}
 \end{frame}
 
-
-% ── Slide 9: Analysis Sections ────────────────────────────────────────────────
-\section{Analysis}
-\begin{frame}{Analysis}
-
-    \textbf{Five sections produced in the profiling report:}
-
-    \bigskip
-
-    \begin{enumerate}
-        \setlength\itemsep{6pt}
-        \item \textbf{Data Profiling} --- NULL rate, unique value count, and type per column.
-
-        \item \textbf{Descriptive Statistics} --- Aggregate fatality rate (fatalities\,/\,aboard), survival rate, ground casualties, and crew vs.\ passenger fatality split.
-
-        \item \textbf{Trend Analysis} --- Crashes and fatalities per decade and per year (ASCII bar chart); top 15 operators by crash count; most dangerous aircraft types by fatality rate (min.\ 10 incidents).
-
-        \item \textbf{Geographic Analysis} --- Top 20 countries/regions and specific crash sites by incident count.
-
-        \item \textbf{Data Quality} --- Mismatched totals, rows where fatalities exceed aboard count, duplicate \texttt{(date, operator, route)} groups, and registration reuse across aircraft types.
-    \end{enumerate}
-
-\end{frame}
-
-% ── Slide 10: Next Steps ────────────────────────────────────────────────
-\begin{frame}{Next steps}
-    \begin{itemize}
-        \item Get unique values again.
-        \item Consider grouping for AC type and operator (e.g. by maker or military/civilian).
-        \item Standardise country names.
-        \item Remove duplicates or create a flag for them.
-        \item Remove or correct outliers.
-        \item Consider flag for data quality issues (e.g. fatalities $>$ aboard).
-    \end{itemize}
-\end{frame}
-
-% ── Slide 11: WebApp ─────────────────────────────────────
-\section{User Interface}
-\begin{frame}{User Interface}
-    % Two columns: left with a screenshot of the web app, right with a brief description of its features and how it can be used to explore the dataset and insights.
+\begin{frame}{Data quality, gaps and privacy}
     \begin{columns}[T]
-        \column{0.4\textwidth}
-        \begin{figure}
-            \centering
-            \includegraphics[width=\textwidth]{img/webapp.png}
-            \caption{Web app interface at \href{https://40.233.98.115/}{https://40.233.98.115/}.}
-        \end{figure}
-        \column{0.5\textwidth}
-        \vspace{0.5cm}
-        \textbf{Frameworks used:}
+        \column{0.55\textwidth}
+        \textbf{Quality and gaps}
         \begin{itemize}
-            \item Flask for backend API.
-            \item Jinja2 for HTML templating.
-            \item Bootstrap for responsive design.
-            \item Docker for containerisation and deployment.
-            \item Nginx for reverse proxy and static file serving.
+            \item Registration overstates active, practising supply $\rightarrow$ adjust using employment status and FTE conversion
+            \item Small regional cells are suppressed or unstable $\rightarrow$ pool years or regions
+            \item 1--2 year publication lag $\rightarrow$ nowcast the latest year and flag it
+            \item Self-reported hours are noisy $\rightarrow$ validate against multiple sources
+            \item Reconcile definitions across CNO, CIHI and StatCan; document every assumption
         \end{itemize}
-        \vspace{0.5cm}
-        Hosting via a VM instance (Ubuntu server 24.04.4 LTS) on Oracle Cloud.\\
-        Repository: \href{https://github.com/jorge-antares/ontario}{github.com/jorge-antares/ontario}
+        \column{0.42\textwidth}
+        \textbf{Privacy}
+        \begin{itemize}
+            \item Aggregate, de-identified data only
+            \item No individual licensing or patient records needed
+            \item Respect CIHI/CNO data-use terms and small-cell suppression rules
+            \item Follow FIPPA principles for any internal administrative data
+        \end{itemize}
     \end{columns}
-
 \end{frame}
 
-% ── Slide 12: Conclusion ─────────────────────────────────────
-\section{Summary}
-\begin{frame}{Summary}
-    \textbf{My approach:}
+% ── Section d: Uncertainty ───────────────────────────────────────────────────
+\section{Uncertainty}
+\begin{frame}{Assessing uncertainty: scenarios and sensitivity}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Scenarios}
+        \begin{itemize}
+            \item \textbf{Baseline:} status-quo trends
+            \item \textbf{High attrition:} accelerated retirements
+            \item \textbf{Expanded seats:} policy intervention
+            \item \textbf{High IEN:} fast-tracked licensing / immigration
+        \end{itemize}
+        \column{0.48\textwidth}
+        \textbf{Sensitivity analysis}
+        \begin{itemize}
+            \item One-at-a-time variation of attrition, utilization growth, completion/pass rates and migration $\rightarrow$ tornado chart of which assumptions move the 2036 gap most
+            \item Monte Carlo draws from plausible parameter ranges $\rightarrow$ uncertainty band around supply and requirements
+        \end{itemize}
+    \end{columns}
+    \vspace{0.3cm}
+    \begin{alertblock}{Robust recommendations}
+        Re-solve the optimization under each scenario: show how the policy mix and its cost change, and favour options that perform well across scenarios.
+    \end{alertblock}
+\end{frame}
+
+% ── Section e: Communication ─────────────────────────────────────────────────
+\section{Results \& Policy}
+\begin{frame}{Communicating results to senior management}
+    \begin{enumerate}
+        \item \textbf{Headline chart:} projected supply vs.\ requirements, 2026--2036, province-wide and by region, with a shaded uncertainty band.
+        \item \textbf{Regional gap view:} when and where gaps first appear.
+        \item \textbf{Optimization result:} the lowest-cost policy mix (seats, IEN, retention, by year) as a stacked bar chart.
+        \item \textbf{Tornado chart:} which assumptions matter most, and so where better data is worth the effort.
+    \end{enumerate}
+    \vspace{0.2cm}
     \begin{itemize}
-        \item Perform cleaning by stages of continuous refinement.
-        \item Develop a modular and reusable structure with minimal external dependencies.
-        \item Implement programming best practices: version control, testing, CI/CD, and documentation.
-        \item Standardise fields to keep consistency and enable analysis.
-        \item Cross-validate data and create metrics (e.g., fatality rates).
-        \item Explore ways to integrate data products with decision-making processes and end-user applications.
+        \item Plain language, one message per slide, assumptions stated up front.
+        \item Brief for executives; technical appendix for analysts; reproducible code.
     \end{itemize}
-
 \end{frame}
 
-% ── Slide 13: Disclosure of tools ─────────────────────────────────────
-\section{Disclosure}
-\begin{frame}{Disclosure of Tools}
-    Claude Sonnet 4.6 was used in the following tasks:
+\begin{frame}{Limitations and policy implications}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Limitations}
+        \begin{itemize}
+            \item Quality depends on data lag and assumption validity
+            \item Does not capture non-linear shocks (e.g.\ pandemics)
+            \item Regional model is coarser than facility-level planning
+            \item Requirements reflect current care models unless scenarios change them
+        \end{itemize}
+        \column{0.48\textwidth}
+        \textbf{Policy options (with trade-offs)}
+        \begin{itemize}
+            \item Expand training seats: durable but slow
+            \item Fast-track IEN licensing: quick, limited by pathway capacity
+            \item Retention incentives: fast, recurring cost
+            \item Regional / rural incentives: target maldistribution
+            \item Scope-of-practice / skill-mix change: shifts requirements
+        \end{itemize}
+    \end{columns}
+    \vspace{0.2cm}
+    \centering Each option is presented with cost, lead time and feasibility to inform government action.
+\end{frame}
+
+\begin{frame}{Summary}
     \begin{itemize}
-        \item Parse unique values of fields to look for edge cases.
-        \item Create documentation based on project structure and code comments.
-        \item Create HTML for user interface.
-        \item Code completion and debugging suggestions (VS Code).
+        \item A linked \textbf{supply} and \textbf{needs-based requirements} model, by region, over ten years.
+        \item An \textbf{optimization layer} turns gaps into a least-cost policy mix.
+        \item \textbf{Scenarios and sensitivity analysis} make recommendations robust.
+        \item Built on public, aggregate data, with explicit quality and privacy safeguards.
+        \item Communicated as options with trade-offs, refreshed annually as new data arrive.
     \end{itemize}
     \vspace{0.5cm}
-    All LLM outputs were reviewed and edited.
+    \centering\Large Thank you --- questions?
 \end{frame}
 
 \end{document}
