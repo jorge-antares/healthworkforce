@@ -23,6 +23,12 @@ def solve():
                 params["alpha"], params["beta"], params["gamma"],
                 params["lam"], params["mu"], population, n_init,
             )
+            n, prev = [], n_init
+            for x in result["x"]:
+                prev = params["gamma"] * prev + x
+                n.append(prev)
+            result["demand"] = [round(params["alpha"] * p, 3) for p in population]
+            result["supply"] = [round(params["beta"] * v, 3) for v in n]
             result["rows"] = list(zip(range(10), population, result["x"],
                                       result["yplus"], result["yminus"]))
         except (KeyError, ValueError, RuntimeError) as e:
@@ -36,4 +42,4 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

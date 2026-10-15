@@ -57,8 +57,31 @@
                     </tbody>
                 </table>
             </div>
+            <h2 class="h4 mt-4 mb-3">Demand vs. supply of healthcare service</h2>
+            <canvas id="serviceChart" height="100"></canvas>
         </div>
         {% endif %}
     </main>
+    {% if result %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById("serviceChart"), {
+            type: "line",
+            data: {
+                labels: {{ result.rows | map(attribute=0) | list | tojson }},
+                datasets: [
+                    {label: "Demand (alpha · p[t])", data: {{ result.demand | tojson }}, borderColor: "#dc3545", backgroundColor: "#dc3545", tension: 0.2},
+                    {label: "Supply (beta · n[t])", data: {{ result.supply | tojson }}, borderColor: "#0d6efd", backgroundColor: "#0d6efd", tension: 0.2}
+                ]
+            },
+            options: {
+                scales: {
+                    x: {title: {display: true, text: "t"}},
+                    y: {title: {display: true, text: "Service"}}
+                }
+            }
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
