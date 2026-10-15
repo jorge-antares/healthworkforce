@@ -1,5 +1,5 @@
 import json
-from model.linprog import optimal_hiring_policy
+from app.model.linprog import optimal_hiring_policy
 
 
 alpha = 0.1

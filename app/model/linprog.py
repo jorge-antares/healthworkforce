@@ -54,8 +54,8 @@ def optimal_hiring_policy(alpha, beta, gamma, lam, mu, p, n_init=0.0):
         raise RuntimeError(f"Solver did not find an optimal solution (status {status})")
 
     return {
-        "x": [round(v.solution_value(),5) for v in x],
-        "yplus": [round(v.solution_value(),5) for v in yp],
-        "yminus": [round(v.solution_value(),5) for v in ym],
+        "x": [round(v.solution_value(),3) for v in x],
+        "yplus": [round(v.solution_value(),3) for v in yp],
+        "yminus": [round(v.solution_value(),3) for v in ym],
         "objfun": solver.Objective().Value(),
     }
