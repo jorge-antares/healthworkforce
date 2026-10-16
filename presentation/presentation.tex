@@ -20,9 +20,12 @@
     breaklines=true,
     language=Python
 }
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamercolor{block title}{bg=blue!10, fg=black}
+\setbeamercolor{block body}{bg=blue!10, fg=black}
 
-\title{Senior Health Workforce Analyst - Test}
-\subtitle{Population and Workforce Forecast Model}
+\title{Senior Health Workforce Analyst - Assignment}
+\subtitle{Health Workforce Modelling}
 \author{Jorge A. Garcia}
 \date{October 19th, 2026}
 
@@ -64,24 +67,76 @@
 
 \end{frame}
 
-% ── Section a: Questions ─────────────────────────────────────────────────────
-\section{Questions \& Concepts}
-\begin{frame}{Central question: Registered Nurses (RNs) in Ontario, 2026--2036}
-    \begin{block}{Will Ontario's RN supply meet projected population health service needs by 2036 --- overall and by region --- and which levers close any gap?}
+
+% ── Slide 4: Assignment ───────────────────────────────────────────────────
+\section{Assignment \& Modelling Approach}
+\begin{frame}{Assignment \& Modelling Approach}
+    \begin{block}{Develop a quantitative model to forecast workforce supply and workforce requirements for \textbf{Registered Nurses} (RNs) in Ontario over the next 10 years.}
     \end{block}
     \vspace{0.2cm}
+    \textbf{Modelling approach:}
     \begin{itemize}
-        \item \textbf{Why RNs?} Public data (CNO, CIHI, StatCan), clear policy relevance.
-        \item \textbf{Analytical questions}
+        \item Start simple and enrich only if needed.
+        \item Research or policy question being addressed.
+        \item Decision variables or policy instruments.
+        \item Causal relationships between variables.
+    \end{itemize}
+    \vspace{0.2cm}
+    \begin{center}
+        \emph{There is no good solution to a badly posed problem.}
+    \end{center}  
+\end{frame}
+
+\section{Conceptual formulation}
+\begin{frame}{Conceptual formulation}
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, rounded corners, draw=structure.fg, fill=structure.fg!10, minimum width=3.1cm, minimum height=1.4cm, align=center, font=\small},
+        arr/.style={-latex, thick}]
+        \node[box] (pop) at (0,2.) {Population [person]};
+        \node[box] (dem) at (4.0,2.) {Health service\\demand [hours/year]};
+        \node[box] (gap) at (4.,0.) {Deficit/Surplus [hours/year]};
+        \node[box] (sup) at (4, -2.) {Heathcare service\\supply [hours/year]};
+        \node[box] (reg) at (8.,-2.) {RN [FTE]};
+        \node[box] (rec) at (12,-2.) {Recruitment [FTE]};
+        \draw[arr] (pop) -- (dem);
+        \draw[arr] (dem) -- (gap);
+        \draw[arr] (sup) -- (gap);
+        \draw[arr] (reg) -- (sup);
+        \draw[arr] (rec) -- (reg);
+    \end{tikzpicture}
+    \vspace{0.3cm}
+    \begin{itemize}
+        \item FTE: Full-time equivalent.
+    \end{itemize}
+\end{frame}
+
+% ── Section a: Questions ─────────────────────────────────────────────────────
+\section{Model Decisions}
+\begin{frame}{Model Decisions}
+    \begin{itemize}
+        \item Which variables are considered exogenous?
+        \item Spatial and temporal granularity.
+        \item Most appropriate model type:
         \begin{itemize}
-            \item How many \emph{active, practising} RNs (FTE) will there be each year?
-            \item How many RN FTEs are needed as the population grows and ages?
-            \item Where and when do gaps emerge?
+            \item System dynamics
+            \item Agent-based modeling
+            \item Optimization
+            \item Time series
         \end{itemize}
-        \item \textbf{Policy questions}
+        \item How to deal with data limitations:
         \begin{itemize}
-            \item Which levers close gaps fastest and most cost-effectively: training seats, internationally educated nurse (IEN) licensing, retention, scope of practice, rural incentives?
+            \item Literature coefficients
+            \item Imputation (e.g., uniform, proportional allocation)
         \end{itemize}
+        \item How to deal with uncertainty:
+        \begin{itemize}
+            \item Probability (distributions, Monte Carlo, Taylor series)
+            \item Sensitivity analysis
+            \item Scenario analysis
+        \end{itemize}
+        \item Resource constraints
+        \item Model calibration and validation
     \end{itemize}
 \end{frame}
 
