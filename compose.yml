@@ -2,12 +2,16 @@ name: opt
 
 services:
   app:
-    build: .
+    build: ./app
     container_name: appcont
-    stop_signal: SIGINT
     expose:
       - "5000"
-    user: "1010:1010"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:5000/', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
     networks:
       - net
@@ -23,7 +27,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/log:/var/log/nginx
-      - ./nginx/ssl:/etc/nginx/certs:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - net
     depends_on:
