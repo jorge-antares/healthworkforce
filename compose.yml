@@ -27,7 +27,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/log:/var/log/nginx
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./nginx/ssl:/etc/ssl:ro
     networks:
       - net
     depends_on:
