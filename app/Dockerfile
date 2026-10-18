@@ -13,7 +13,7 @@ FROM python:3.13-slim
 ARG UID=1010
 ARG GID=1010
 RUN groupadd --gid ${GID} appuser \
-    && useradd --uid ${UID} --gid ${GID} --no-create-home --shell /usr/sbin/nologin appuser
+    && useradd --uid ${UID} --gid ${GID} --create-home --shell /usr/sbin/nologin appuser
 
 ENV PATH="/opt/venv/bin:$PATH" \
     FLASK_APP=app.py \
