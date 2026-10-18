@@ -20,6 +20,24 @@
     </nav>
 
     <main class="container py-4">
+        <div class="card shadow-sm border-0 p-4 mb-4" id="model-container">
+            <h2 class="h4 mb-3">Optimal hiring policy model</h2>
+            <p><strong>Decision variable</strong> \(x_t\): new RNs hired at time \(t\).</p>
+            \[
+            \min_{x_t} \sum_{t=0}^{T} \lambda\, e^{-\delta t}\, y_t^{+} + \sum_{t=0}^{T} \mu\, e^{-\delta t}\, y_t^{-}
+            \]
+            <p class="mb-1">s.t.</p>
+            \[
+            \begin{aligned}
+            d_t &= \alpha\, p_t && \forall t \\
+            s_t &= \beta\, n_t && \forall t \\
+            d_t - s_t &= y_t^{+} - y_t^{-} && \forall t \\
+            n_t &= \gamma\, n_{t-1} + x_t && \forall t \\
+            x_t,\ y_t^{+},\ y_t^{-} &\ge 0 && \forall t
+            \end{aligned}
+            \]
+        </div>
+
         <form method="post" class="card shadow-sm border-0 p-4 mb-4">
             <h2 class="h4 mb-3">Parameters</h2>
             <div class="row g-3 mb-4">
@@ -70,6 +88,7 @@
         </div>
         {% endif %}
     </main>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     {% if result %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script>
