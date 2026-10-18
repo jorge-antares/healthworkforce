@@ -3,7 +3,7 @@ from model.linprog import optimal_hiring_policy
 
 app = Flask(__name__)
 
-DEFAULT_PARAMS = {"alpha": 0.01, "beta": 0.02, "gamma": 0.9, "lam": 2.0, "mu": 1.0, "delta": 0.03}
+DEFAULT_PARAMS = {"alpha": 0.01, "beta": 0.1, "gamma": 0.9, "lam": 2.0, "mu": 1.0, "delta": 0.03}
 DEFAULT_POPULATION = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450]
 
 
@@ -11,7 +11,7 @@ DEFAULT_POPULATION = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450
 def solve():
     params = dict(DEFAULT_PARAMS)
     population = list(DEFAULT_POPULATION)
-    n_init = 400.0
+    n_init = 100.0
     result = error = None
 
     if request.method == "POST":
@@ -54,4 +54,4 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=5000, debug=True)

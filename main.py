@@ -5,9 +5,9 @@ from app.model.linprog import optimal_hiring_policy
 alpha = 0.1
 beta = 0.2
 gamma = 0.95
-lambda_ = 0.1
-mu = 0.03
-delta = 0.05
+lambda_ = 2.0
+mu = 1.0
+delta = 0.2
 
 # Population and nurse stock initialization
 population = [1000, 1050, 1100, 1000, 1000, 1000, 900]
@@ -21,5 +21,6 @@ results = optimal_hiring_policy(
     mu=mu,
     delta=delta,
     population=population,
-    n_init=n_init)
+    n_init=n_init
+    )
 print(json.dumps(results, indent=2))
