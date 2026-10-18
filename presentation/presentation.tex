@@ -47,12 +47,12 @@
 \begin{frame}{About me}
     % List key points about your background, motivation, and approach to data analytics.
     \begin{itemize}
-        \item Quantitative modeler with 10+ years of experience:
+        \item Applied quantitative modeler with 10+ years of experience:
         % Sub list
         \begin{itemize}
             \item Decision models (optimization)
             \item Agent-based simulation
-            \item Physics-based modeling
+            \item Physics-based modelling
             \item Macroeconomic models
         \end{itemize}
         \vspace{0.3cm}
@@ -60,7 +60,7 @@
         \vspace{0.3cm}
         \item Goals:
             \begin{itemize}
-                \item Apply data analytics and modeling to inform decision-making and uncover actionable insights.
+                \item Apply data analytics and modelling to inform decision-making and uncover actionable insights.
                 \item Learn and grow as a professional by taking on new challenges and responsibilities.
             \end{itemize}
     \end{itemize}
@@ -73,12 +73,12 @@
 \begin{frame}{Assignment \& Modelling Approach}
     \begin{block}{Develop a quantitative model to forecast workforce supply and workforce requirements for \textbf{Registered Nurses} (RNs) in Ontario over the next 10 years.}
     \end{block}
-    \vspace{0.2cm}
+    \vspace{0.5cm}
     \textbf{Modelling approach:}
     \begin{itemize}
         \item Start simple and enrich only if needed.
-        \item Research or policy question being addressed.
-        \item Decision variables or policy instruments.
+        \item Research or policy question being addressed (how a solution looks like?).
+        \item Decision variables or policy instruments (what can be controlled?).
         \item Causal relationships between variables.
     \end{itemize}
     \vspace{0.2cm}
@@ -87,14 +87,14 @@
     \end{center}  
 \end{frame}
 
-\section{Conceptual formulation}
+
 \begin{frame}{Conceptual formulation}
     \centering
     \begin{tikzpicture}[
         box/.style={rectangle, rounded corners, draw=structure.fg, fill=structure.fg!10, minimum width=3.1cm, minimum height=1.4cm, align=center, font=\small},
         arr/.style={-latex, thick}]
         \node[box] (pop) at (0,2.) {Population [person]};
-        \node[box] (dem) at (4.0,2.) {Health service\\demand [hours/year]};
+        \node[box] (dem) at (4.0,2.) {Healthcare service\\demand [hours/year]};
         \node[box] (gap) at (4.,0.) {Deficit/Surplus [hours/year]};
         \node[box] (sup) at (4, -2.) {Heathcare service\\supply [hours/year]};
         \node[box] (reg) at (8.,-2.) {RN [FTE]};
@@ -111,8 +111,7 @@
     \end{itemize}
 \end{frame}
 
-% ── Section a: Questions ─────────────────────────────────────────────────────
-\section{Model Decisions}
+
 \begin{frame}{Model Decisions}
     \begin{itemize}
         \item Which variables are considered exogenous?
@@ -120,26 +119,72 @@
         \item Most appropriate model type:
         \begin{itemize}
             \item System dynamics
-            \item Agent-based modeling
-            \item Optimization
             \item Time series
+            \item Optimization
+            \item Agent-based modelling
         \end{itemize}
-        \item How to deal with data limitations:
-        \begin{itemize}
-            \item Literature coefficients
-            \item Imputation (e.g., uniform, proportional allocation)
-        \end{itemize}
-        \item How to deal with uncertainty:
-        \begin{itemize}
-            \item Probability (distributions, Monte Carlo, Taylor series)
-            \item Sensitivity analysis
-            \item Scenario analysis
-        \end{itemize}
-        \item Resource constraints
-        \item Model calibration and validation
+        \item Model should drive data sources (rather than the other way around).
+        \item Look for solutions in literature.
+        \item Start with a simple model first.
     \end{itemize}
 \end{frame}
 
+
+\section{Demand-side Modelling}
+\begin{frame}{Demand-side Modelling}
+    \begin{itemize}
+        \item Demand of healthcare services: $d_{t}$ [hours/time]
+        \item $\alpha$: per capita demand for healthcare services [hours/(person time)]
+        \item Population-driven demand:
+        \begin{equation*}
+            d_{t} = \alpha\ p_{t} \quad \forall t\quad\quad \text{[hours/time]}
+        \end{equation*}
+        \item Age-based demand: $d_{t} = \sum_{a} \alpha_{a}\ p_{a,t}$
+        \item Specialty-based demand: $d_{t,s} = \sum_{a} \alpha_{a,s}\ p_{a,t}$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Population Modelling}
+    \begin{itemize}
+        \item Leslie (age-structured) model, in vector form:
+        \begin{equation*}
+            \mathbf{p}_{t+1} = \mathbf{L}\ \mathbf{p}_{t} + \mathbf{i}_{t} \quad \forall t
+        \end{equation*}
+        \item $\mathbf{p}_{t}$: population vector at time $t$.
+        \item $\mathbf{L}$: Leslie matrix.
+        \item $\mathbf{i}_{t}$: net immigration vector at time $t$ (major source of uncertainty).
+    \end{itemize}
+
+\end{frame}
+
+
+\section{Supply-side Modelling}
+\begin{frame}{Supply-side Modelling}
+    \begin{itemize}
+        \item Supply of healthcare services: $s_{t}$ [hours/time]
+        \item $\beta_t$: per capita supply of healthcare services [hours/(FTE time)]
+        \item Supply of healthcare services:
+        \begin{equation*}
+            s_{t} = \beta\ n_{t} \quad \forall t \quad\quad \text{[hours/time]}
+        \end{equation*}
+        \item Specialty-based supply: $s_{t,s} = \beta_{s}\ n_{s,t}$
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Balance Surplus/Deficit}
+    \begin{itemize}
+        \item Balance of healthcare services:
+        \begin{equation*}
+            y_{t} = d_{t} - s_{t} \quad \forall t \quad\quad \text{[hours/time]}
+        \end{equation*}
+        \item Surplus: $y_{t}^{+} = \max(y_{t}, 0)$
+        \item Deficit: $y_{t}^{-} = \max(-y_{t}, 0)$
+    \end{itemize}
+\end{frame}
+
+
+\section{Optimal hiring policy model}
 \begin{frame}{Optimal hiring policy model}
     \textbf{Decision variable} $x_{t}$: new RNs hired at time $t$.
     \vspace{0.2cm}
@@ -170,8 +215,34 @@
 \end{frame}
 
 
+\begin{frame}{Decision Support Tool}
+    \begin{columns}[T]
+        \column{0.50\textwidth}
+        % Image
+        \includegraphics[width=\linewidth]{img/model.png}
+        % Label
+        \caption{Decision Support Tool Model: https://20.220.16.0/}
+
+        
+        \column{0.45\textwidth}
+        \textbf{Development tools}
+        \vspace{0.5cm}
+        \begin{itemize}
+            \item Model formulation: OR-Tools
+            \item Application framework: Flask
+            \item Infrastructure:
+            \begin{itemize}
+                \item Azure virtual machine (Ubuntu 24.04)
+                \item Nginx, Gunicorn
+            \end{itemize}
+            \item Available at \url{https://20.220.16.0/}
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+
 % ── Section c: Data ──────────────────────────────────────────────────────────
-\section{Data}
+\section{Data limitations \& Uncertainty}
 \begin{frame}{Data sources, variables and indicators}
     \small
     \begin{tabular}{@{}p{2.3cm}p{5.5cm}p{5.6cm}@{}}
@@ -209,30 +280,6 @@
     \end{columns}
 \end{frame}
 
-% ── Section d: Uncertainty ───────────────────────────────────────────────────
-\section{Uncertainty}
-\begin{frame}{Assessing uncertainty: scenarios and sensitivity}
-    \begin{columns}[T]
-        \column{0.48\textwidth}
-        \textbf{Scenarios}
-        \begin{itemize}
-            \item \textbf{Baseline:} status-quo trends
-            \item \textbf{High attrition:} accelerated retirements
-            \item \textbf{Expanded seats:} policy intervention
-            \item \textbf{High IEN:} fast-tracked licensing / immigration
-        \end{itemize}
-        \column{0.48\textwidth}
-        \textbf{Sensitivity analysis}
-        \begin{itemize}
-            \item One-at-a-time variation of attrition, utilization growth, completion/pass rates and migration $\rightarrow$ tornado chart of which assumptions move the 2036 gap most
-            \item Monte Carlo draws from plausible parameter ranges $\rightarrow$ uncertainty band around supply and requirements
-        \end{itemize}
-    \end{columns}
-    \vspace{0.3cm}
-    \begin{alertblock}{Robust recommendations}
-        Re-solve the optimization under each scenario: show how the policy mix and its cost change, and favour options that perform well across scenarios.
-    \end{alertblock}
-\end{frame}
 
 % ── Section e: Communication ─────────────────────────────────────────────────
 \section{Results \& Policy}
@@ -273,6 +320,20 @@
     \vspace{0.2cm}
     \centering Each option is presented with cost, lead time and feasibility to inform government action.
 \end{frame}
+
+
+\section{Disclosure}
+\begin{frame}{Disclosure of Tools}
+    Claude Sonnet 5.5 was used in the following tasks:
+    \begin{itemize}
+        \item Create HTML for user interface.
+        \item Create initial presentation template.
+        \item Code completion and debugging suggestions (VS Code).
+    \end{itemize}
+    \vspace{0.5cm}
+    All LLM outputs were reviewed and edited.
+\end{frame}
+
 
 \begin{frame}{Summary}
     \begin{itemize}
