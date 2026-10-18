@@ -45,7 +45,7 @@
 
 \section{About me}
 \begin{frame}{About me}
-    Applied quantitative modeler with a strong background in operations research and systems design engineering.
+    Applied quantitative modeler with app development experience.
     \begin{itemize}
         \item Training:
         \begin{itemize}
@@ -62,18 +62,10 @@
             \item Macroeconomic models
         \end{itemize}
     \end{itemize}
-\end{frame}
-
-
-\begin{frame}{About me}
+    \textcolor{blue}{\textbf{Goal:}}
     \begin{itemize}
-        \item Currently, Data Analytics Specialist @ MCCSS.
-        \vspace{0.3cm}
-        \item Goals:
-            \begin{itemize}
-                \item Apply data analytics and modelling to inform decision-making and uncover actionable insights.
-                \item Learn and grow as a professional by taking on new challenges and responsibilities.
-            \end{itemize}
+        \item Apply quantitative modeling and data analytics to improve well-being of Ontarians.
+        \item Learn and grow as a professional by taking on new challenges and responsibilities.
     \end{itemize}
 \end{frame}
 
@@ -253,7 +245,7 @@
 \begin{frame}{Extensions}
     \begin{itemize}
         \item Population's dynamics (Leslie model).
-        \item Capacity constraints due to facilities: $n_{t} \le c_{t}$
+        \item CFacilities' capacity constraints: $n_{t} \le c_{t}$
         \item Recruitment sources $x_{t,s}$:
         \begin{itemize}
             \item domestic graduates
@@ -279,56 +271,47 @@
         \item Healthcare professionals data:
         \begin{itemize}
             \item College of Nurses of Ontario (CNO) registration statistics
-            \item CIHI Nursing in Canada / National Nursing Database
+            \item CIHI Nursing in Canada
             \item Program enrolment and graduation counts
-            \item Licensing exam results
         \end{itemize}
         \item Other sources as needed by the model
         \item \textbf{Privacy:} PII not needed for an aggregated model
+        \item \textbf{Data gap:}
+        \begin{itemize}
+            \item Interpolation.
+            \item Proportionality assumptions in the absence of detailed data.
+            \item Use of proxy variables.
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Uncertainty Analysis}
+    \textbf{Ways to address uncertainty:}
     \begin{enumerate}
-        \item \textbf{Headline chart:} projected supply vs.\ requirements, 2026--2036, province-wide and by region, with a shaded uncertainty band.
-        \item \textbf{Regional gap view:} when and where gaps first appear.
-        \item \textbf{Optimization result:} the lowest-cost policy mix (seats, IEN, retention, by year) as a stacked bar chart.
-        \item \textbf{Tornado chart:} which assumptions matter most, and so where better data is worth the effort.
+        \item Probability distributions for key parameters or equations.
+        \begin{itemize}
+            \item Monte Carlo simulation.
+            \item Expectation and Covariance matrix.
+            \item Confidence intervals.
+        \end{itemize}
+        \item Error propagation analysis:
+        \begin{itemize}
+            \item Bounds on outputs.
+        \end{itemize}
+        \item Scenario analysis:
+        \begin{itemize}
+            \item Optimistic-case, pessimistic-case, and most-likely scenarios.
+        \end{itemize}
+        \item Sensitivity analysis:
+        \begin{itemize}
+            \item Assessing the impact of changes in key parameters on model outputs.
+        \end{itemize}
     \end{enumerate}
-    \vspace{0.2cm}
-    \begin{itemize}
-        \item Plain language, one message per slide, assumptions stated up front.
-        \item Brief for executives; technical appendix for analysts; reproducible code.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Limitations and policy implications}
-    \begin{columns}[T]
-        \column{0.48\textwidth}
-        \textbf{Limitations}
-        \begin{itemize}
-            \item Quality depends on data lag and assumption validity
-            \item Does not capture non-linear shocks (e.g.\ pandemics)
-            \item Regional model is coarser than facility-level planning
-            \item Requirements reflect current care models unless scenarios change them
-        \end{itemize}
-        \column{0.48\textwidth}
-        \textbf{Policy options (with trade-offs)}
-        \begin{itemize}
-            \item Expand training seats: durable but slow
-            \item Fast-track IEN licensing: quick, limited by pathway capacity
-            \item Retention incentives: fast, recurring cost
-            \item Regional / rural incentives: target maldistribution
-            \item Scope-of-practice / skill-mix change: shifts requirements
-        \end{itemize}
-    \end{columns}
-    \vspace{0.2cm}
-    \centering Each option is presented with cost, lead time and feasibility to inform government action.
 \end{frame}
 
 
-\section{Disclosure}
+\section{Disclosure \& Summary}
 \begin{frame}{Disclosure of Tools}
     Claude Sonnet 5.5 was used in the following tasks:
     \begin{itemize}
@@ -338,7 +321,7 @@
     \end{itemize}
     \vspace{0.5cm}
     All LLM outputs were reviewed and edited.\\
-    All model formulation and assumptions are 100\% mine.
+    All model formulation and assumptions are 100\% the author's own.
 \end{frame}
 
 
@@ -347,7 +330,7 @@
         \item Use population as main driver.
         \item Start small and add complexity as needed.
         \item Construct a model that finds the least-cost to address supply-demand gaps.
-        \item Address uncertainty through probability, scenarios or sensitivity analysis.
+        \item Address uncertainty through probability, error propagation, scenarios or sensitivity analysis.
     \end{itemize}
     \begin{center}
         \emph{All models are wrong, but some are useful.}
