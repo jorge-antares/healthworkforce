@@ -140,136 +140,11 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Conceptualizing supply, requirements and distribution}
-    \begin{columns}[T]
-        \column{0.32\textwidth}
-        \textbf{Supply}
-        \begin{itemize}
-            \item Stock-and-flow, not a registrant headcount
-            \item Registered $\rightarrow$ active $\rightarrow$ practising in Ontario
-            \item Converted to FTE (full/part-time, hours)
-        \end{itemize}
-        \column{0.32\textwidth}
-        \textbf{Requirements}
-        \begin{itemize}
-            \item Needs-based: workforce required to meet projected population and service needs
-            \item Driven by age/sex, population growth, care setting, models of care
-            \item Not the same as current employment or vacancies
-        \end{itemize}
-        \column{0.32\textwidth}
-        \textbf{Geography}
-        \begin{itemize}
-            \item Modelled by Ontario Health region
-            \item Urban / rural / northern lens
-            \item Province-wide balance can hide regional shortages
-        \end{itemize}
-    \end{columns}
-    \vspace{0.4cm}
-    \centering\textbf{Gap}$_{r,t}$ = Requirement$_{r,t}$ $-$ Supply$_{r,t}$ \quad (region $r$, year $t$, in FTEs)
-\end{frame}
-
-% ── Section b: Methodology ───────────────────────────────────────────────────
-\section{Methodology}
-\begin{frame}{Modelling pipeline}
-    \centering
-    \begin{tikzpicture}[
-        box/.style={rectangle, rounded corners, draw=structure.fg, fill=structure.fg!10, minimum width=3.1cm, minimum height=1.1cm, align=center, font=\small},
-        arr/.style={-latex, thick}]
-        \node[box] (supply) at (0,1.2) {1. Supply model\\stock-and-flow};
-        \node[box] (req) at (0,-0.6) {2. Requirements model\\needs-based};
-        \node[box] (gap) at (4.0,0.3) {Gap by region\\and year};
-        \node[box] (scen) at (7.8,1.2) {3. Scenarios \&\\sensitivity};
-        \node[box] (opt) at (7.8,-0.6) {4. Optimization\\policy mix};
-        \node[box] (out) at (11.5,0.3) {Decision\\support};
-        \draw[arr] (supply) -- (gap);
-        \draw[arr] (req) -- (gap);
-        \draw[arr] (gap) -- (scen);
-        \draw[arr] (gap) -- (opt);
-        \draw[arr] (scen) -- (out);
-        \draw[arr] (opt) -- (out);
-    \end{tikzpicture}
-    \vspace{0.3cm}
-    \begin{itemize}
-        \item Annual time steps, ten-year horizon, a handful of regions: transparent and fast to run.
-        \item Moves from a \emph{descriptive forecast} to \emph{decision support}.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Supply: stock-and-flow (cohort projection)}
-    \[
-    S_{r,a}(t+1) = S_{r,a}(t) + E_{r}(t) - A_{r,a}(t) + M_{r,a}(t)
-    \]
-    \vspace{-0.2cm}
-    \begin{columns}[T]
-        \column{0.55\textwidth}
-        \begin{itemize}
-            \item \textbf{Inflows}
-            \begin{itemize}
-                \item New graduates $E$, lagged by program length and exam pass rates; IEN licensure
-                \item Net interprovincial / international migration $M$
-                \item Re-entrants
-            \end{itemize}
-            \item \textbf{Outflows}
-            \begin{itemize}
-                \item Age- and career-stage-specific retirement / exit hazard rates $A$ (not one flat attrition rate)
-            \end{itemize}
-        \end{itemize}
-        \column{0.42\textwidth}
-        \begin{itemize}
-            \item \textbf{Key assumptions}
-            \begin{itemize}
-                \item Age-specific rates stay at recent levels (baseline)
-                \item Graduates and IENs stay in Ontario at observed rates
-                \item FTE per active RN by age and sex
-                \item Regional distribution of new entrants follows observed patterns
-            \end{itemize}
-        \end{itemize}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Requirements: needs-based model}
-    \[
-    R_{r}(t) = \sum_{a,s,c} P_{r,a,s}(t) \times U_{a,s,c} \times I_{c}(t)
-    \]
-    \begin{itemize}
-        \item $P$: population by region, age band and sex (Ontario Ministry of Finance projections)
-        \item $U$: service utilization rate by age/sex and care setting $c$ (hospital, long-term care, home and community, primary care)
-        \item $I$: service-intensity adjustment converting service use to RN FTEs, including policy-driven changes (more home care, skill-mix shifts)
-        \item \textbf{Cross-check:} ratio benchmarking (RNs per 1,000 population) as a sensitivity lens on the needs-based estimate
-        \item \textbf{Key assumptions:} utilization by age stays constant in the baseline; changes in care models enter only as explicit scenarios
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Optimization layer: from forecast to recommendation}
-    \textbf{Decision variables} $x_{t}$: domestic training seats, IEN licences fast-tracked, retention-incentive spend, inter-regional deployment incentives.
-    \vspace{0.2cm}
-    \begin{columns}[T]
-        \column{0.48\textwidth}
-        \textbf{Formulation A: least cost}
-        \[
-        \min \sum_{k,r,t} c_{k}\, x_{k,r,t}
-        \]
-        s.t. $S_{r,t}(x) \ge R_{r,t}$ for all $r,t$
-        \column{0.48\textwidth}
-        \textbf{Formulation B: fixed budget}
-        \[
-        \min \; \max_{r,t}\, \big(R_{r,t} - S_{r,t}(x)\big)^{+}
-        \]
-        s.t. $\sum c_{k}\, x_{k,r,t} \le B$
-    \end{columns}
-    \vspace{0.2cm}
-    \begin{itemize}
-        \item \textbf{Constraints:} training and clinical-placement capacity, annual budget ceilings, realistic ramp-up rates, minimum service level per region.
-        \item Linear / mixed-integer program, open-source solvers (Python with PuLP or OR-Tools): fast and explainable.
-        \item The two formulations are two views of the same cost--gap trade-off.
-    \end{itemize}
-\end{frame}
-
 \begin{frame}{Optimal hiring policy model}
-    \textbf{Decision variable} $x_{t}$: new nurse hired at time $t$.
+    \textbf{Decision variable} $x_{t}$: new RNs hired at time $t$.
     \vspace{0.2cm}
     \[
-    \min_{x_{t}} \sum_{t=0}^{T} e^{-\lambda t}\, y_{t}^{+} + \sum_{t=0}^{T} e^{-\mu t}\, y_{t}^{-}
+    \min_{x_{t}} \sum_{t=0}^{T} \lambda\ e^{-\delta t}\, y_{t}^{+} + \sum_{t=0}^{T} \mu\ e^{-\delta t}\, y_{t}^{-}
     \]
     s.t. 
     \begin{equation}
@@ -292,10 +167,6 @@
         x_{t}, y_{t}^{+}, y_{t}^{-} \ge 0 \quad \forall t
     \end{equation}
     
-    \vspace{0.2cm}
-    \begin{itemize}
-        \item \textbf{Constraints:} training and clinical-placement capacity, annual budget ceilings, realistic ramp-up rates, minimum service level per region.
-    \end{itemize}
 \end{frame}
 
 
