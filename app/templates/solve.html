@@ -5,24 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solve - HealthForce</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.6' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-primary shadow-sm">
-        <div class="container"><a class="navbar-brand fw-bold" href="/">HealthForce</a></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">Home</a>
+        </div>
     </nav>
 
     <main class="container py-4">
         <form method="post" class="card shadow-sm border-0 p-4 mb-4">
             <h2 class="h4 mb-3">Parameters</h2>
             <div class="row g-3 mb-4">
-                {% for name, label in [("alpha", "alpha"), ("beta", "beta"), ("gamma", "gamma"), ("mu", "mu"), ("lam", "lambda")] %}
+                {% for name, label in [("alpha", "alpha"), ("beta", "beta"), ("gamma", "gamma"), ("lam", "lambda"), ("mu", "mu"), ("delta", "delta")] %}
                 <div class="col-6 col-md">
                     <label class="form-label" for="{{ name }}">{{ label }}</label>
-                    <input class="form-control" type="number" step="any" required id="{{ name }}" name="{{ name }}" value="{{ params[name] }}">
+                    <input class="form-control" type="number" step="any" required id="{{ name }}" name="{{ name }}" value="{{ params[name] if name in params else 0 }}">
                 </div>
                 {% endfor %}
                 <div class="col-6 col-md">
-                    <label class="form-label" for="n_init">Initial Nurse Workforce</label>
+                    <label class="form-label" for="n_init">Initial RNs</label>
                     <input class="form-control" type="number" step="any" min="0" required id="n_init" name="n_init" value="{{ n_init }}">
                 </div>
             </div>
@@ -32,11 +40,11 @@
                 {% for i in range(10) %}
                 <div class="col-6 col-md-2">
                     <label class="form-label" for="p{{ i }}">p<sub>{{ i }}</sub></label>
-                    <input class="form-control" type="number" step="any" min="0" required id="p{{ i }}" name="p{{ i }}" value="{{ population[i] }}">
+                    <input class="form-control" type="number" step="10" min="0" required id="p{{ i }}" name="p{{ i }}" value="{{ population[i] }}">
                 </div>
                 {% endfor %}
             </div>
-            <div><button type="submit" class="btn btn-primary px-4">Solve</button></div>
+            <div><button type="submit" class="btn btn-success px-4">Solve</button></div>
         </form>
 
         {% if error %}
@@ -70,14 +78,14 @@
             data: {
                 labels: {{ result.rows | map(attribute=0) | list | tojson }},
                 datasets: [
-                    {label: "Demand (alpha · p[t])", data: {{ result.demand | tojson }}, borderColor: "#dc3545", backgroundColor: "#dc3545", tension: 0.2},
-                    {label: "Supply (beta · n[t])", data: {{ result.supply | tojson }}, borderColor: "#0d6efd", backgroundColor: "#0d6efd", tension: 0.2}
+                    {label: "Demand", data: {{ result.demand | tojson }}, borderColor: "#dc3545", backgroundColor: "#dc3545", tension: 0.2},
+                    {label: "Supply", data: {{ result.supply | tojson }}, borderColor: "#0d6efd", backgroundColor: "#0d6efd", tension: 0.2}
                 ]
             },
             options: {
                 scales: {
-                    x: {title: {display: true, text: "t"}},
-                    y: {title: {display: true, text: "Service"}}
+                    x: {title: {display: true, text: "years"}},
+                    y: {title: {display: true, text: "Healthcare Service"}}
                 }
             }
         });

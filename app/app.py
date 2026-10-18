@@ -3,7 +3,7 @@ from model.linprog import optimal_hiring_policy
 
 app = Flask(__name__)
 
-DEFAULT_PARAMS = {"alpha": 0.01, "beta": 0.02, "gamma": 0.9, "mu": 0.05, "lam": 0.05}
+DEFAULT_PARAMS = {"alpha": 0.01, "beta": 0.02, "gamma": 0.9, "lam": 2.0, "mu": 1.0, "delta": 0.03}
 DEFAULT_POPULATION = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450]
 
 
@@ -11,7 +11,7 @@ DEFAULT_POPULATION = [1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450
 def solve():
     params = dict(DEFAULT_PARAMS)
     population = list(DEFAULT_POPULATION)
-    n_init = 0.0
+    n_init = 400.0
     result = error = None
 
     if request.method == "POST":
@@ -20,8 +20,14 @@ def solve():
             n_init = float(request.form["n_init"])
             population = [float(request.form[f"p{i}"]) for i in range(10)]
             result = optimal_hiring_policy(
-                params["alpha"], params["beta"], params["gamma"],
-                params["lam"], params["mu"], population, n_init,
+                alpha=params["alpha"],
+                beta=params["beta"],
+                gamma=params["gamma"],
+                lam=params["lam"],
+                mu=params["mu"],
+                delta=params["delta"],
+                population=population,
+                n_init=n_init,
             )
             n, prev = [], n_init
             for x in result["x"]:
@@ -34,8 +40,14 @@ def solve():
         except (KeyError, ValueError, RuntimeError) as e:
             error = str(e)
 
-    return render_template("solve.html", params=params, population=population, n_init=n_init,
-                           result=result, error=error)
+    return render_template(
+        "solve.html",
+        params=params,
+        population=population,
+        n_init=n_init,
+        result=result,
+        error=error
+        )
 
 @app.route("/")
 def index():
