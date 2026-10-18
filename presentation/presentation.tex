@@ -32,30 +32,41 @@
 
 \begin{document}
 
-% ── Slide 1: Title ────────────────────────────────────────────────────────────
+
 \begin{frame}
     \titlepage
 \end{frame}
 
-% ── Slide 2: Outline ────────────────────────────────────
+
 \begin{frame}{Outline}
     \tableofcontents
 \end{frame}
 
-% ── Slide 3: About me ────────────────────────────────────
+
 \section{About me}
 \begin{frame}{About me}
-    % List key points about your background, motivation, and approach to data analytics.
+    Applied quantitative modeler with a strong background in operations research and systems design engineering.
     \begin{itemize}
-        \item Applied quantitative modeler with 10+ years of experience:
-        % Sub list
+        \item Training:
+        \begin{itemize}
+            \item PhD. in Systems Design Engineering
+            \item MSc. in Operations Research
+            \item BSc. in Industrial Management
+        \end{itemize}
+        \vspace{0.3cm}
+        \item My modelling experience:
         \begin{itemize}
             \item Decision models (optimization)
             \item Agent-based simulation
             \item Physics-based modelling
             \item Macroeconomic models
         \end{itemize}
-        \vspace{0.3cm}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{About me}
+    \begin{itemize}
         \item Currently, Data Analytics Specialist @ MCCSS.
         \vspace{0.3cm}
         \item Goals:
@@ -64,11 +75,9 @@
                 \item Learn and grow as a professional by taking on new challenges and responsibilities.
             \end{itemize}
     \end{itemize}
-
 \end{frame}
 
 
-% ── Slide 4: Assignment ───────────────────────────────────────────────────
 \section{Assignment \& Modelling Approach}
 \begin{frame}{Assignment \& Modelling Approach}
     \begin{block}{Develop a quantitative model to forecast workforce supply and workforce requirements for \textbf{Registered Nurses} (RNs) in Ontario over the next 10 years.}
@@ -116,7 +125,7 @@
     \begin{itemize}
         \item Which variables are considered exogenous?
         \item Spatial and temporal granularity.
-        \item Most appropriate model type:
+        \item Most appropriate model type, e.g.:
         \begin{itemize}
             \item System dynamics
             \item Time series
@@ -163,6 +172,7 @@
     \begin{itemize}
         \item Supply of healthcare services: $s_{t}$ [hours/time]
         \item $\beta_t$: per capita supply of healthcare services [hours/(FTE time)]
+        \item $n_{t}$: number of healthcare professionals (FTE) at time $t$.
         \item Supply of healthcare services:
         \begin{equation*}
             s_{t} = \beta\ n_{t} \quad \forall t \quad\quad \text{[hours/time]}
@@ -221,9 +231,7 @@
         % Image
         \includegraphics[width=\linewidth]{img/model.png}
         % Label
-        \caption{Decision Support Tool Model: https://20.220.16.0/}
-
-        
+        \caption{Decision Support Tool: https://20.220.16.0/}
         \column{0.45\textwidth}
         \textbf{Development tools}
         \vspace{0.5cm}
@@ -235,55 +243,53 @@
                 \item Azure virtual machine (Ubuntu 24.04)
                 \item Nginx, Gunicorn
             \end{itemize}
-            \item Available at \url{https://20.220.16.0/}
+            \item \textcolor{blue}{Available at \url{https://20.220.16.0/}}
+            \item Project repository: \url{https://github.com/jorge-antares/healthworkforce}
         \end{itemize}
     \end{columns}
+\end{frame}
+
+
+\begin{frame}{Extensions}
+    \begin{itemize}
+        \item Population's dynamics (Leslie model).
+        \item Capacity constraints due to facilities: $n_{t} \le c_{t}$
+        \item Recruitment sources $x_{t,s}$:
+        \begin{itemize}
+            \item domestic graduates
+            \item international educated nurses
+            \item re-entrants
+        \end{itemize}
+        \item Budget constraints on wages or recruitment.
+        \item Bring economic theory: price elasticity of supply of nurses.
+    \end{itemize}
 \end{frame}
 
 
 % ── Section c: Data ──────────────────────────────────────────────────────────
 \section{Data limitations \& Uncertainty}
-\begin{frame}{Data sources, variables and indicators}
-    \small
-    \begin{tabular}{@{}p{2.3cm}p{5.5cm}p{5.6cm}@{}}
-        \toprule
-        & \textbf{Sources} & \textbf{Variables / indicators} \\
-        \midrule
-        Supply & College of Nurses of Ontario (CNO) registration statistics; CIHI Nursing in Canada / National Nursing Database; program enrolment and graduation counts; licensing exam results & Headcount and FTE; age and sex; region; practice setting; employment status (full-/part-time); graduation, pass and licensing rates; migration \\
-        \addlinespace
-        Requirements & Ontario Ministry of Finance population projections; CIHI health service utilization; Ontario Health regional reports; Statistics Canada & Population by region/age/sex; service use by setting; RNs per 1,000 population; hours of care per service unit \\
-        \addlinespace
-        Policy & Training-seat funding, IEN pathway capacity, program costs & Unit cost per seat, IEN licence, retention incentive; capacity limits; ramp-up rates \\
-        \bottomrule
-    \end{tabular}
-\end{frame}
-
-\begin{frame}{Data quality, gaps and privacy}
-    \begin{columns}[T]
-        \column{0.55\textwidth}
-        \textbf{Quality and gaps}
+\begin{frame}{Data sources}
+    \begin{itemize}
+        \item Demographic data:
         \begin{itemize}
-            \item Registration overstates active, practising supply $\rightarrow$ adjust using employment status and FTE conversion
-            \item Small regional cells are suppressed or unstable $\rightarrow$ pool years or regions
-            \item 1--2 year publication lag $\rightarrow$ nowcast the latest year and flag it
-            \item Self-reported hours are noisy $\rightarrow$ validate against multiple sources
-            \item Reconcile definitions across CNO, CIHI and StatCan; document every assumption
+            \item Ministry of Finance population projections
+            \item Statistics Canada
+            \item CIHI health service utilization
         \end{itemize}
-        \column{0.42\textwidth}
-        \textbf{Privacy}
+        \item Healthcare professionals data:
         \begin{itemize}
-            \item Aggregate, de-identified data only
-            \item No individual licensing or patient records needed
-            \item Respect CIHI/CNO data-use terms and small-cell suppression rules
-            \item Follow FIPPA principles for any internal administrative data
+            \item College of Nurses of Ontario (CNO) registration statistics
+            \item CIHI Nursing in Canada / National Nursing Database
+            \item Program enrolment and graduation counts
+            \item Licensing exam results
         \end{itemize}
-    \end{columns}
+        \item Other sources as needed by the model
+        \item \textbf{Privacy:} PII not needed for an aggregated model
+    \end{itemize}
 \end{frame}
 
 
-% ── Section e: Communication ─────────────────────────────────────────────────
-\section{Results \& Policy}
-\begin{frame}{Communicating results to senior management}
+\begin{frame}{Uncertainty Analysis}
     \begin{enumerate}
         \item \textbf{Headline chart:} projected supply vs.\ requirements, 2026--2036, province-wide and by region, with a shaded uncertainty band.
         \item \textbf{Regional gap view:} when and where gaps first appear.
@@ -331,18 +337,21 @@
         \item Code completion and debugging suggestions (VS Code).
     \end{itemize}
     \vspace{0.5cm}
-    All LLM outputs were reviewed and edited.
+    All LLM outputs were reviewed and edited.\\
+    All model formulation and assumptions are 100\% mine.
 \end{frame}
 
 
 \begin{frame}{Summary}
     \begin{itemize}
-        \item A linked \textbf{supply} and \textbf{needs-based requirements} model, by region, over ten years.
-        \item An \textbf{optimization layer} turns gaps into a least-cost policy mix.
-        \item \textbf{Scenarios and sensitivity analysis} make recommendations robust.
-        \item Built on public, aggregate data, with explicit quality and privacy safeguards.
-        \item Communicated as options with trade-offs, refreshed annually as new data arrive.
+        \item Use population as main driver.
+        \item Start small and add complexity as needed.
+        \item Construct a model that finds the least-cost to address supply-demand gaps.
+        \item Address uncertainty through probability, scenarios or sensitivity analysis.
     \end{itemize}
+    \begin{center}
+        \emph{All models are wrong, but some are useful.}
+    \end{center}
     \vspace{0.5cm}
     \centering\Large Thank you --- questions?
 \end{frame}
