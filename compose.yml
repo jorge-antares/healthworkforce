@@ -1,7 +1,7 @@
 name: opt
 
 services:
-  app:
+  flaskapp:
     build: ./app
     container_name: appcont
     expose:
