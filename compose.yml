@@ -31,7 +31,7 @@ services:
     networks:
       - net
     depends_on:
-      app:
+      flaskapp:
         condition: service_healthy
 
 
